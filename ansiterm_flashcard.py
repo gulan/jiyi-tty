@@ -46,7 +46,7 @@ Version 3 Changes
 * Use curses, which required conversion to python3
 """
 
-VERSION = '3.0.2'
+VERSION = '3.0.3'
 ENTER,DELETE = 10,127
 
 class State:
@@ -59,7 +59,7 @@ def loop0(gs,sc,w):
 
         if w.state == '1-iter-end':
             gs.restack()
-            w.state = '0-iter-end' if gs.gameover else '1-iter-again'
+            w.state =  '0-iter-end' if gs.gameover else '1-iter-again'
             continue
             
         if w.state == '1-iter-again':
@@ -68,7 +68,7 @@ def loop0(gs,sc,w):
                 gs.toss()
             else:
                 gs.keep()
-            w.state = '1-iter-again' if gs.more else '1-iter-end'
+            w.state = w.state if gs.more else '1-iter-end'
             continue
             
         if w.state == '0-iter-end':
