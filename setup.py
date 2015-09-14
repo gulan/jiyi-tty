@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(name='ansiterm_flashcard',
-      version='3.0.3',
+      version='3.0.4',
       description='flash card presenter',
       author='gulan',
       author_email='glen.wilder@gmail.com',

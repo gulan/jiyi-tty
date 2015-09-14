@@ -46,7 +46,7 @@ Version 3 Changes
 * Use curses, which required conversion to python3
 """
 
-VERSION = '3.0.3'
+VERSION = '3.0.4'
 ENTER,DELETE = 10,127
 
 class State:
@@ -55,7 +55,7 @@ class State:
 
 def loop0(gs,sc,w):
     w.state = '0-iter-end' if gs.gameover else '1-iter-again'
-    while w.state != '0-exit-loop':
+    while w.state != 'EXIT':
 
         if w.state == '1-iter-end':
             gs.restack()
@@ -73,7 +73,7 @@ def loop0(gs,sc,w):
             
         if w.state == '0-iter-end':
             gs.check_endgame()
-            w.state = '0-exit-loop'
+            w.state = 'EXIT'
             continue
 
 def dialog():
