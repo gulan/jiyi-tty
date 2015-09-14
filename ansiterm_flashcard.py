@@ -46,7 +46,7 @@ Version 3 Changes
 * Use curses, which required conversion to python3
 """
 
-VERSION = '3.0.1'
+VERSION = '3.0.2'
 ENTER,DELETE = 10,127
 
 class State:
@@ -54,16 +54,12 @@ class State:
         self.state = None
 
 def loop0(gs,sc,w):
-    w.state = '0-iter-end' if gs.gameover else '0-iter-again'
+    w.state = '0-iter-end' if gs.gameover else '1-iter-again'
     while w.state != '0-exit-loop':
 
-        if w.state == '0-iter-again':
-            w.state = '1-iter-again'
-            continue
-            
         if w.state == '1-iter-end':
             gs.restack()
-            w.state = '0-iter-end' if gs.gameover else '0-iter-again'
+            w.state = '0-iter-end' if gs.gameover else '1-iter-again'
             continue
             
         if w.state == '1-iter-again':
