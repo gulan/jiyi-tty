@@ -75,10 +75,6 @@ def loop0(gs,sc,w):
             w.state = '1-iter-again' if gs.more else '1-iter-end'
             continue
             
-        if w.state == '1-iter-end':
-            w.state = '1-exit-loop'
-            continue
-
         if w.state == '0-iter-end':
             gs.check_endgame()
             w.state = '0-exit-loop'
