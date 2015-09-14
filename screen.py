@@ -3,9 +3,11 @@
 
 import curses
 
+TOSS,KEEP = 'TOSS','KEPP'
+
 class screen:
 
-    def question(self,lines):
+    def display_question(self,lines):
         self.stdscr.clear()
         i = 0
         while i < len(lines):
@@ -13,23 +15,27 @@ class screen:
             i += 1
         self.next_pos = i
         self.stdscr.refresh()
+        
+    def user_prod(self):
         while 1:
             ch = self.stdscr.getch()
             if ch == 10:
                 break
 
-    def answer(self,lines):
+    def display_answer(self,lines):
         i = self.next_pos
         while i < len(lines) + self.next_pos:
             self.stdscr.addstr(i,0,lines[i-self.next_pos])
             i += 1
         self.stdscr.refresh()
+        
+    def user_score(self):
         while 1:
             ch = self.stdscr.getch()
             if ch in (10,curses.KEY_DC):
                 break
-        return ch == curses.KEY_DC
-
+        return (TOSS if ch == curses.KEY_DC else KEEP)
+        
     def __init__(self):
         self.stdscr = curses.initscr()
         curses.noecho()

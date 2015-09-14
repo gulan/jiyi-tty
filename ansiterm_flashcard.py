@@ -46,7 +46,7 @@ Version 3 Changes
 * Use curses, which required conversion to python3
 """
 
-VERSION = '3.0.4'
+VERSION = '3.1.0'
 ENTER,DELETE = 10,127
 
 class State:
@@ -63,8 +63,10 @@ def loop0(gs,sc,w):
             continue
             
         if w.state == '1-iter-again':
-            sc.question(gs.question)
-            if sc.answer(gs.answer):
+            sc.display_question(gs.question)
+            sc.user_prod()
+            sc.display_answer(gs.answer)
+            if sc.user_score() == screen.TOSS:
                 gs.toss()
             else:
                 gs.keep()
