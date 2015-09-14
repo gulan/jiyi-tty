@@ -46,24 +46,71 @@ Version 3 Changes
 * Use curses, which required conversion to python3
 """
 
-VERSION = '3.0.0'
+VERSION = '3.0.1'
 ENTER,DELETE = 10,127
 
-def dialog(gs):
-    sc = screen.screen()
-    try:
-        while not gs.gameover:
-            while gs.more:
-                sc.question(gs.question)
-                if sc.answer(gs.answer):
-                    gs.toss()
-                else:
-                    gs.keep()
+# def dialog():
+#     gs = chinese.chinese_list(30)
+#     sc = screen.screen()
+#     try:
+#         while not gs.gameover:
+#             while gs.more:
+#                 sc.question(gs.question)
+#                 if sc.answer(gs.answer):
+#                     gs.toss()
+#                 else:
+#                     gs.keep()
+#             gs.restack()
+#         gs.check_endgame()
+#     finally:
+#         sc.cleanup()
+
+# def loop1(gs,sc):
+#     while gs.more:
+#         sc.question(gs.question)
+#         if sc.answer(gs.answer):
+#             gs.toss()
+#         else:
+#             gs.keep()
+
+class State:
+    def __init__(self):
+        self.state = None
+
+def loop1(gs,sc,w):
+    w.state = '1-iter-again' if gs.more else '1-iter-end'
+    while w.state != '1-exit-loop':
+        if w.state == '1-iter-again':
+            sc.question(gs.question)
+            if sc.answer(gs.answer):
+                gs.toss()
+            else:
+                gs.keep()
+            w.state = '1-iter-again' if gs.more else '1-iter-end'
+        if w.state == '1-iter-end':
+            w.state = '1-exit-loop'
+
+def loop0(gs,sc,w):
+    w.state = '0-iter-end' if gs.gameover else '0-iter-again'
+    while w.state != '0-exit-loop':
+        if w.state == '0-iter-again':
+            loop1(gs,sc,w)
             gs.restack()
-        gs.check_endgame()
+            w.state = '0-iter-end' if gs.gameover else '0-iter-again'
+        if w.state == '0-iter-end':
+            gs.check_endgame()
+            w.state = '0-exit-loop'
+
+def dialog():
+    w = State()
+    gs = chinese.chinese_list(30)
+    try:
+        sc = screen.screen()
+        loop0(gs,sc,w)
     finally:
         sc.cleanup()
 
+
 if __name__ == '__main__':
-    dialog(chinese.chinese_list(30))
+    dialog()
     
