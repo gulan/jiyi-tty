@@ -124,7 +124,8 @@ def loop0(gs,sc,w):
             gs.check_endgame()
             w.state = '0-exit-loop'
             continue
-:
+
+:  bad idea. compilcates split-state.
     assert w.state == '1-iter-again'
     w.state = '1-iter-again' if gs.more else '1-iter-end'
 ------------------------------------------------------- substitute-equal
