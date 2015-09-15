@@ -20,3 +20,5 @@ cabal.sandbox.config
 dist
 my*
 MANIFEST
+.hypothesis/
+3/
