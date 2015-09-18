@@ -3,7 +3,14 @@
 
 import curses
 
-TOSS,KEEP = 'TOSS','KEPP'
+"""
+start_game
+display ?
+user_prod
+start_dialog
+"""
+
+TOSS,KEEP = 'TOSS','KEEP'
 
 class screen:
 
