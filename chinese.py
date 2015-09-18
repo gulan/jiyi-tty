@@ -58,7 +58,7 @@ class chinese_list(object):
     def check_endgame(self):
         assert set(self.cards) == self.trash
 
-    def load(self,dbpath,card_count):
+    def _load(self,dbpath,card_count):
         """Create game state."""
         q = """          
         select distinct chinese,pinyin,english
@@ -75,10 +75,20 @@ class chinese_list(object):
         self.trash = set()
 
     def __init__(self,card_count=30):
-        self.load('hsk2009.db',card_count)
+        self._load('hsk2009.db',card_count)
 
 class SQL(object):
     """Operations on a flashcard deck"""
+    
+    @property
+    def question(self):
+        (_,chinese,pinyin,english) = self._topcard()
+        return [chinese,pinyin]
+
+    @property
+    def answer(self):
+        (_,chinese,pinyin,english) = self._topcard()
+        return [english]
 
     def toss(self):
         """Remove the card from the game. This operation is also known
@@ -86,8 +96,7 @@ class SQL(object):
         kept in the trash."""
         cur = self.cx.cursor()
         r = cur.execute('select * from deck limit 1;')
-        card = r.next()[0]
-        # print >>sys.stderr, '* toss card %s *' % card
+        card = next(r)[0]
         cur.execute('insert into trash values (?);', (card,))
         cur.execute('delete from deck where save_id = ?;', (card,))
     
@@ -96,15 +105,28 @@ class SQL(object):
         cards back into play with the redo()."""
         cur = self.cx.cursor()
         r = cur.execute('select * from deck limit 1;')
-        card = r.next()[0]
-        # print >>sys.stderr, '* keep card %s *' % card
+        card = next(r)[0]
         cur.execute('insert into save values (?);', (card,))
         cur.execute('delete from deck where save_id = ?;', (card,))
         
+    def restack(self):
+        """Shuffle and stack any saved cards on top of the play deck."""
+        q = """
+        alter table deck rename to deck0;
+        create table deck as 
+            select * from (select * from save order by random())
+            union all
+            select * from deck0;
+        delete from save;
+        drop table deck0;
+        """
+        cur = self.cx.cursor()
+        cur.executescript(q)
+
     @property
     def more(self):
         cur = self.cx.cursor()
-        count = cur.execute('select count(*) from deck;').next()[0]
+        count = next(cur.execute('select count(*) from deck;'))[0]
         return count > 0
         
     @property
@@ -112,32 +134,50 @@ class SQL(object):
         if self.more:
             return False
         cur = self.cx.cursor()
-        count = cur.execute('select count(*) from save;').next()[0]
+        count = next(cur.execute('select count(*) from save;'))[0]
         return count == 0
+        
+    def check_endgame(self):
+        assert True, "tbd"
+
+    def _load(self,dbpath,card_count):
+        q1 = """
+        drop table if exists deck;
+        drop table if exists save;
+        drop table if exists trash;
+
+        create table deck (deck_id references hsk);
+        create table save (save_id references hsk);
+        create table trash (trash_id references hsk);
+        """
+        q2 = """
+        insert into save 
+          select hsk_id 
+          from hsk
+          order by random()
+          limit ?;
+        """
+        self.dbpath = dbpath
+        self.cx = sqlite3.connect(dbpath)
+        cur = self.cx.cursor()
+        cur.executescript(q1)
+        cur.execute(q2,(card_count,))
+        self.restack()
+
+    def __init__(self,card_count=30):
+        self._load('hsk2009.db',card_count)
 
     def _topcard(self):
         q = """
         select hsk_id,chinese,pinyin,english from hsk where hsk_id = ?;
         """
         cur = self.cx.cursor()
-        card_id = cur.execute('select save_id from deck limit 1;').next()[0]
-        card = cur.execute(q,(card_id,)).next()
+        card_id = next(cur.execute('select save_id from deck limit 1;'))[0]
+        card = next(cur.execute(q,(card_id,)))
         assert card_id == card[0]
         return card
-    
-    @property
-    def question(self):
-        (_,chinese,pinyin,english) = self._topcard()
-        return (chinese,pinyin)
-
-    @property
-    def answer(self):
-        (_,chinese,pinyin,english) = self._topcard()
-        return english
         
-    def __init__(self,db_path):
-        self.db_path = db_path
-        self.cx = sqlite3.connect(db_path)
+
 
     # def _disp(self):
     #     cur = self.cx.cursor()
@@ -151,40 +191,3 @@ class SQL(object):
     #     for r in cur.execute('select * from trash;'):
     #         print >>sys.stderr, '   ', r[0]
     #     print >>sys.stderr, ''
-
-    def restack(self):
-        """Shuffle and stack any saved cards on top of the play deck."""
-        # deck = save + deck
-        # save = {} 
-        q = """
-        alter table deck rename to deck0;
-        create table deck as 
-            select * from (select * from save order by random())
-            union all
-            select * from deck0;
-        delete from save;
-        drop table deck0;
-        """
-        cur = self.cx.cursor()
-        # print >>sys.stderr, '* restack *'
-        cur.executescript(q)
-        
-    def load(self,N=30):
-        q = """
-        drop table if exists deck;
-        drop table if exists save;
-        drop table if exists trash;
-
-        create table deck (deck_id references hsk);
-        create table save (save_id references hsk);
-        create table trash (trash_id references hsk);
-
-        insert into save 
-          select hsk_id 
-          from hsk
-          order by random()
-          limit ?;
-        """
-        cur = self.cx.cursor()
-        cur.executescript(q,(N,))
-        self.restack()

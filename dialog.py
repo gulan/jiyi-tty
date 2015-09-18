@@ -44,7 +44,8 @@ def loop0(gs,sc,w):
 
 def dialog():
     w = State()
-    gs = chinese.chinese_list(10)
+    # gs = chinese.chinese_list(10)
+    gs = chinese.SQL(10)
     try:
         sc = screen.screen()
         loop0(gs,sc,w)
