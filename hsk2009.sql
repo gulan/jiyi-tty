@@ -1,5 +1,5 @@
 
--- The old HSK1 words. For sqlite3.
+-- The old HSK words. For sqlite3.
 
 BEGIN TRANSACTION;
 

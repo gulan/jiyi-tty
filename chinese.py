@@ -1,7 +1,15 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import random
 import sqlite3
+
+# There are two classes here. They have the same interface, but
+# different internal operations.
+#
+#   chinese_list: initial load from db, but operate using python lists.
+#   SQL: Keep all state in the database. Use transactions to modify the state.
+#
+# The prototype used chinese_list. The production version needs to use SQL.
 
 class chinese_list(object):
     """Operations on a flashcard deck"""
@@ -10,8 +18,8 @@ class chinese_list(object):
     def question(self):
         """Return a formatted question string derived from the card on
         to of the draw deck. The proper formatting depends on the
-        subject. The formatting for Chinese vocabulary would likely
-        differ from multiplation tables."""
+        subject. The formatting for Chinese vocabulary will
+        differ from multiplication tables."""
         (chinese,pinyin,_) = self.deck[-1]
         return [chinese,pinyin]
         
@@ -111,6 +119,7 @@ class SQL(object):
         
     def restack(self):
         """Shuffle and stack any saved cards on top of the play deck."""
+        # TBD: recently seen cards should come last
         q = """
         alter table deck rename to deck0;
         create table deck as 
@@ -145,7 +154,7 @@ class SQL(object):
         drop table if exists deck;
         drop table if exists save;
         drop table if exists trash;
-
+        
         create table deck (deck_id references hsk);
         create table save (save_id references hsk);
         create table trash (trash_id references hsk);
@@ -154,6 +163,7 @@ class SQL(object):
         insert into save 
           select hsk_id 
           from hsk
+          where rank_id = 1
           order by random()
           limit ?;
         """
@@ -168,26 +178,11 @@ class SQL(object):
         self._load('hsk2009.db',card_count)
 
     def _topcard(self):
-        q = """
-        select hsk_id,chinese,pinyin,english from hsk where hsk_id = ?;
-        """
+        q0 = "select save_id from deck limit 1;"
+        q1 = "select hsk_id,chinese,pinyin,english from hsk where hsk_id = ?;"
         cur = self.cx.cursor()
-        card_id = next(cur.execute('select save_id from deck limit 1;'))[0]
-        card = next(cur.execute(q,(card_id,)))
+        card_id = next(cur.execute(q0))[0]
+        card = next(cur.execute(q1,(card_id,)))
         assert card_id == card[0]
         return card
         
-
-
-    # def _disp(self):
-    #     cur = self.cx.cursor()
-    #     print >>sys.stderr, '- save -'
-    #     for r in cur.execute('select * from save;'):
-    #         print >>sys.stderr, '   ', r[0]
-    #     print >>sys.stderr, '- deck -'
-    #     for r in cur.execute('select * from deck;'):
-    #         print >>sys.stderr, '   ', r[0]
-    #     print >>sys.stderr, '- trash -'
-    #     for r in cur.execute('select * from trash;'):
-    #         print >>sys.stderr, '   ', r[0]
-    #     print >>sys.stderr, ''

@@ -1,8 +1,8 @@
-Why I am writing this?
+INSTALL
+-------
 
 virtualenv -p python3 3
 source 3/bin/activate
-pip install hypothesis
 
 """
 Work though a deck of flashcards. Learned cards are discarded. Missed
