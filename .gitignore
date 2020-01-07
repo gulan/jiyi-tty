@@ -22,3 +22,8 @@ my*
 MANIFEST
 .hypothesis/
 3/
+*.log
+oper
+spec.html
+spec.pdf
+tryit.py

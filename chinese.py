@@ -55,7 +55,7 @@ class chinese_list(object):
 
     @property
     def more(self):
-        """True if more cards in the draw deck."""
+        """True if there are more cards in the draw deck."""
         return len(self.deck) > 0
         
     @property
@@ -77,7 +77,7 @@ class chinese_list(object):
         cx = sqlite3.connect(dbpath)
         cur = cx.cursor()
         r = cur.execute(q,(card_count,))
-        self.cards = list(r)
+        self.cards = list(r)   # the original deck is not really needed.
         self.deck = self.cards[:]
         self.retry = []
         self.trash = set()
