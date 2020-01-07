@@ -18,11 +18,15 @@ def loop(gs,sc,log):
             
         if state == '1-iter-again':
             sc.display_question(gs.question)
-            state = '0-user-prod'
+            state = '0-user-prod-a'
             continue
         
-        if state == '0-user-prod':
+        if state == '0-user-prod-a':
             sc.user_prod()
+            state = '0-user-prod-b'
+            continue
+        
+        if state == '0-user-prod-b':
             sc.display_answer(gs.answer,tossed)
             state = '0-user-score'
             continue
