@@ -11,8 +11,6 @@ def loop(gs,sc,log):
     state = '1-iter-again'
     while state != 'EXIT':
         
-        # log.write("state: %s\n" % state)
-        
         if state == '1-iter-end':
             gs.restack()
             state =  '0-iter-end' if gs.gameover else '1-iter-again'
@@ -52,10 +50,10 @@ def loop(gs,sc,log):
 #     finally:
 #         sc.cleanup()
 
-def dialog_local():
+def dialog_local(count=20):
     "Run game as a regular program, no IPC. See play.py"
     log = open('dialog.log', 'a')
-    gs = chinese.SQL(100)
+    gs = chinese.SQL(count)
     sc = screen.new_screen(log)
     loop(gs,sc,log)
     sc.cleanup()
