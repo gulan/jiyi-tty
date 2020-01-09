@@ -2,6 +2,8 @@
 
 import random
 import sqlite3
+import screen
+import dialog
 
 # There are two classes here. They have the same interface, but
 # different internal operations.
@@ -10,6 +12,14 @@ import sqlite3
 #   SQL: Keep all state in the database. Use transactions to modify the state.
 #
 # The prototype used chinese_list. The production version needs to use SQL.
+
+def main(count=30):
+    log = open('dialog.log', 'a')
+    gs = SQL(count)
+    sc = screen.new_screen(log)
+    dialog.loop(gs,sc,log)
+    sc.cleanup()
+    log.close()
 
 class chinese_list(object):
     """Operations on a flashcard deck"""
@@ -188,3 +198,6 @@ class SQL(object):
         assert card_id == card[0]
         return card
         
+if __name__ == "__main__":
+    main()
+    

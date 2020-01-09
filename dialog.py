@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import chinese
+# import chinese
 import screen
 import time
 
@@ -59,11 +59,11 @@ def loop(gs,sc,log):
 #     finally:
 #         sc.cleanup()
 
-def dialog_local(count=20):
-    "Run game as a regular program, no IPC. See play.py"
-    log = open('dialog.log', 'a')
-    gs = chinese.SQL(count)
-    sc = screen.new_screen(log)
-    loop(gs,sc,log)
-    sc.cleanup()
-    log.close()
+# def dialog_local(count=20):
+#     "Run game as a regular program, no IPC. See play.py"
+#     log = open('dialog.log', 'a')
+#     gs = chinese.SQL(count)
+#     sc = screen.new_screen(log)
+#     loop(gs,sc,log)
+#     sc.cleanup()
+#     log.close()
