@@ -2,4 +2,4 @@
 
 import dialog
 
-dialog.dialog_local()
+dialog.dialog_local(30)

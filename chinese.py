@@ -132,6 +132,8 @@ class SQL(object):
         cur = self.cx.cursor()
         cur.executescript(q)
 
+    # select * from hsk order by random() limit (select count(*)/1000 from hsk);
+        
     @property
     def more(self):
         cur = self.cx.cursor()

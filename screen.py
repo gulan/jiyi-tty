@@ -58,7 +58,6 @@ class screen:
     def display_answer(self,lines,toss_count):
         for w in lines:
             self.log.write(w + "\n")
-        self.log.write("\n")
         i = self.next_pos
         while i < len(lines) + self.next_pos:
             self.stdscr.addstr(i,0,lines[i-self.next_pos])
@@ -72,7 +71,7 @@ class screen:
             if ch in (ENTER,DELETE):
                 break
         r = (TOSS if ch == DELETE else KEEP)
-        self.log.write("> %s\n" % r)
+        self.log.write("S> %s\n" % r)
         return r
                 
     def __init__(self, log):

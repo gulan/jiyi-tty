@@ -2,11 +2,14 @@
 
 import chinese
 import screen
+import time
 
 VERSION = '4.0.0'
 
 def loop(gs,sc,log):
     log.write("---- new play ----\n")
+    start = time.time()
+    log.write("T> %s\n" % time.strftime("%Y-%m-%d %H:%M"))
     tossed = 0
     state = '1-iter-again'
     while state != 'EXIT':
@@ -42,6 +45,8 @@ def loop(gs,sc,log):
             
         if state == '0-iter-end':
             gs.check_endgame()
+            duration = int(time.time() - start)
+            log.write("D> %s\n" % duration)
             state = 'EXIT'
             continue
 
