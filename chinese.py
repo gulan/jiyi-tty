@@ -2,8 +2,6 @@
 
 import random
 import sqlite3
-import screen
-import dialog
 
 # There are two classes here. They have the same interface, but
 # different internal operations.
@@ -12,14 +10,6 @@ import dialog
 #   SQL: Keep all state in the database. Use transactions to modify the state.
 #
 # The prototype used chinese_list. The production version needs to use SQL.
-
-def main(count=30):
-    log = open('dialog.log', 'a')
-    gs = SQL(count)
-    sc = screen.new_screen(log)
-    dialog.loop(gs,sc,log)
-    sc.cleanup()
-    log.close()
 
 class chinese_list(object):
     """Operations on a flashcard deck"""
@@ -175,7 +165,7 @@ class SQL(object):
         insert into save 
           select hsk_id 
           from hsk
-          where rank_id = 1
+          where rank_id = ?
           order by random()
           limit ?;
         """
@@ -183,7 +173,7 @@ class SQL(object):
         self.cx = sqlite3.connect(dbpath)
         cur = self.cx.cursor()
         cur.executescript(q1)
-        cur.execute(q2,(card_count,))
+        cur.execute(q2,(2,card_count))
         self.restack()
 
     def __init__(self,card_count=30):
@@ -191,13 +181,12 @@ class SQL(object):
 
     def _topcard(self):
         q0 = "select save_id from deck limit 1;"
-        q1 = "select hsk_id,chinese,pinyin,english from hsk where hsk_id = ?;"
+        q1 = """select hsk_id,chinese,pinyin,english
+                from hsk 
+                where hsk_id = ?;"""
         cur = self.cx.cursor()
         card_id = next(cur.execute(q0))[0]
         card = next(cur.execute(q1,(card_id,)))
         assert card_id == card[0]
         return card
         
-if __name__ == "__main__":
-    main()
-    

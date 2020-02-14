@@ -62,7 +62,8 @@ class screen:
         while i < len(lines) + self.next_pos:
             self.stdscr.addstr(i,0,lines[i-self.next_pos])
             i += 1
-        self.stdscr.addstr(self.nlines-1,self.ncols-6,str(toss_count))
+        (ncols,nlines) = os.get_terminal_size()
+        self.stdscr.addstr(nlines-1,ncols-6,str(toss_count))
         self.stdscr.refresh()
         
     def user_score(self):
@@ -81,7 +82,6 @@ class screen:
         curses.cbreak()
         self.stdscr.keypad(1)
         curses.curs_set(0)  # invisible cursor
-        (self.ncols,self.nlines) = os.get_terminal_size()
 
     def cleanup(self):
         curses.nocbreak()
