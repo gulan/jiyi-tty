@@ -24,7 +24,7 @@ def loop(gs,sc,log):
             continue
         
         if state == '0-user-prod-a':
-            sc.user_prod()
+            sc.accept_flip()
             state = '0-user-prod-b'
             continue
         
@@ -34,7 +34,7 @@ def loop(gs,sc,log):
             continue
         
         if state == '0-user-score':
-            if sc.user_score() == screen.TOSS:
+            if sc.accept_score() == screen.TOSS:
                 gs.toss()
                 tossed += 1
             else:

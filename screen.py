@@ -51,7 +51,7 @@ class screen:
         self.next_pos = i
         self.stdscr.refresh()
         
-    def user_prod(self):
+    def accept_flip(self):
         while self.stdscr.getch() != ENTER:
             pass
 
@@ -66,7 +66,7 @@ class screen:
         self.stdscr.addstr(nlines-1,ncols-6,str(toss_count))
         self.stdscr.refresh()
         
-    def user_score(self):
+    def accept_score(self):
         while 1:
             ch = self.stdscr.getch()
             if ch in (ENTER,DELETE):
