@@ -10,12 +10,10 @@ import chinese
 import dialog
 
 def main(count=12):
-    log = open('dialog.log', 'a')
     gs = chinese.SQL(count)
-    sc = screen.new_screen(log)
-    dialog.loop(gs,sc,log)
+    sc = screen.new_screen()
+    dialog.loop(gs,sc)
     sc.cleanup()
-    log.close()
 
 main()
 

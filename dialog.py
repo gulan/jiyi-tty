@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import screen
-import time
 
 VERSION = '4.0.0'
 
@@ -13,10 +12,7 @@ ITER_END0 = '0-iter-end'
 ITER_END1 = '1-iter-end'
 EXIT      = 'EXIT'
 
-def loop(gs,sc,log):
-    log.write("---- new play ----\n")
-    start = time.time()
-    log.write("T> %s\n" % time.strftime("%Y-%m-%d %H:%M"))
+def loop(gs,sc):
     tossed = 0
     state = ITER
     while state != EXIT:
@@ -52,8 +48,6 @@ def loop(gs,sc,log):
             
         if state == ITER_END0:
             gs.check_endgame()
-            duration = int(time.time() - start)
-            log.write("D> %s\n" % duration)
             state = EXIT
             continue
 

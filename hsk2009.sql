@@ -34,7 +34,7 @@ create table log (
     hsk_id  references hsk,
     action  text not null,
     start   text not null,
-    finish  text not null)
+    finish  text not null);
 
 INSERT INTO hsk VALUES(1,1,'啊','ā','ah');
 INSERT INTO hsk VALUES(1,2,'矮','ǎi','short; low');

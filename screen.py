@@ -41,8 +41,6 @@ DELETE = curses.KEY_DC
 class screen:
 
     def display_question(self,lines):
-        for w in lines:
-            self.log.write(w + "\n")
         self.stdscr.clear()
         i = 0
         while i < len(lines):
@@ -56,8 +54,6 @@ class screen:
             pass
 
     def display_answer(self,lines,toss_count):
-        for w in lines:
-            self.log.write(w + "\n")
         i = self.next_pos
         while i < len(lines) + self.next_pos:
             self.stdscr.addstr(i,0,lines[i-self.next_pos])
@@ -72,11 +68,9 @@ class screen:
             if ch in (ENTER,DELETE):
                 break
         r = (TOSS if ch == DELETE else KEEP)
-        self.log.write("S> %s\n" % r)
         return r
                 
-    def __init__(self, log):
-        self.log = log
+    def __init__(self):
         self.stdscr = curses.initscr()
         curses.noecho()
         curses.cbreak()
@@ -116,11 +110,11 @@ class app:
         server.terminate()
         server.join()
 
-def new_screen(log, local=True):
+def new_screen(local=True):
     # Client gets an instance that behaves like a screen, but cannot
     # tell if it is local or remote.
     if local:
-        return screen(log)
+        return screen()
     else:
         addr = ("localhost", 8005)
         s = multiprocessing.Process(target=run_screen_server, args=(addr,))
