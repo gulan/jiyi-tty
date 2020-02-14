@@ -3,8 +3,13 @@
 
 BEGIN TRANSACTION;
 
+create table game (
+   game_id integer primary key autoincrement,
+   tm      text not null,
+   ccnt    integer not null);
+
 create table rank (
-   rank_id integer primary key,
+   rank_id     integer primary key,
    description text not null);
 
 INSERT INTO rank VALUES(1,'Basic');
@@ -14,11 +19,22 @@ INSERT INTO rank VALUES(4,'Advanced');
 
 CREATE TABLE hsk (
    rank_id references rank,
-   hsk_id integer not null,
+   hsk_id  integer not null,
    chinese text not null,
-   pinyin text not null,
+   pinyin  text not null,
    english text not null,
    primary key (rank_id,hsk_id));
+
+create table deck  (deck_id references hsk);
+create table save  (save_id references hsk);
+create table trash (trash_id references hsk);
+
+create table log (
+    game_id references game,
+    hsk_id  references hsk,
+    action  text not null,
+    start   text not null,
+    finish  text not null)
 
 INSERT INTO hsk VALUES(1,1,'啊','ā','ah');
 INSERT INTO hsk VALUES(1,2,'矮','ǎi','short; low');

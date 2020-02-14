@@ -107,6 +107,7 @@ class SQL(object):
         card = next(r)[0]
         cur.execute('insert into trash values (?);', (card,))
         cur.execute('delete from deck where save_id = ?;', (card,))
+        self.cx.commit()
     
     def keep(self):
         """Save the card to the retry deck. The user may put these
@@ -116,6 +117,7 @@ class SQL(object):
         card = next(r)[0]
         cur.execute('insert into save values (?);', (card,))
         cur.execute('delete from deck where save_id = ?;', (card,))
+        self.cx.commit()
         
     def restack(self):
         """Shuffle and stack any saved cards on top of the play deck."""
@@ -131,6 +133,7 @@ class SQL(object):
         """
         cur = self.cx.cursor()
         cur.executescript(q)
+        self.cx.commit()
 
     # select * from hsk order by random() limit (select count(*)/1000 from hsk);
         
@@ -151,41 +154,11 @@ class SQL(object):
     def check_endgame(self):
         assert True, "tbd"
 
-    # def _load(self,dbpath,card_count):
-    #     q1 = """
-    #     drop table if exists deck;
-    #     drop table if exists save;
-    #     drop table if exists trash;
-        
-    #     create table deck (deck_id references hsk);
-    #     create table save (save_id references hsk);
-    #     create table trash (trash_id references hsk);
-    #     """
-    #     q2 = """
-    #     insert into save 
-    #       select hsk_id 
-    #       from hsk
-    #       where rank_id = ?
-    #       order by random()
-    #       limit ?;
-    #     """
-    #     self.dbpath = dbpath
-    #     self.cx = sqlite3.connect(dbpath)
-    #     cur = self.cx.cursor()
-    #     cur.executescript(q1)
-    #     cur.execute(q2,(2,card_count))
-    #     self.restack()
-
     def __init__(self,card_count=30,dbpath='hsk2009.db'):
-        # self._load('hsk2009.db',card_count)
         q1 = """
-        drop table if exists deck;
-        drop table if exists save;
-        drop table if exists trash;
-        
-        create table deck (deck_id references hsk);
-        create table save (save_id references hsk);
-        create table trash (trash_id references hsk);
+        delete from deck;
+        delete from save;
+        delete from trash;
         """
         
         q2 = """
@@ -197,11 +170,18 @@ class SQL(object):
           limit ?;
         """
         
+        q3 = """
+          insert into game (tm, ccnt)
+          values (datetime('now'), ?);
+        """
+        
         self.dbpath = dbpath
         self.cx = sqlite3.connect(dbpath)
         cur = self.cx.cursor()
         cur.executescript(q1)
+        cur.execute(q3,(card_count,))
         cur.execute(q2,(2,card_count))
+        self.cx.commit()
         self.restack()
 
     def _topcard(self):
@@ -214,4 +194,10 @@ class SQL(object):
         card = next(cur.execute(q1,(card_id,)))
         assert card_id == card[0]
         return card
-        
+
+    def _saved():
+        q = """select * from saved,hsk where save_id = hsk.rowid;"""
+        cur = self.cx.cursor()
+        for row in cur.execute(q):
+            print(row)
+            
