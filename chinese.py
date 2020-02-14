@@ -151,7 +151,33 @@ class SQL(object):
     def check_endgame(self):
         assert True, "tbd"
 
-    def _load(self,dbpath,card_count):
+    # def _load(self,dbpath,card_count):
+    #     q1 = """
+    #     drop table if exists deck;
+    #     drop table if exists save;
+    #     drop table if exists trash;
+        
+    #     create table deck (deck_id references hsk);
+    #     create table save (save_id references hsk);
+    #     create table trash (trash_id references hsk);
+    #     """
+    #     q2 = """
+    #     insert into save 
+    #       select hsk_id 
+    #       from hsk
+    #       where rank_id = ?
+    #       order by random()
+    #       limit ?;
+    #     """
+    #     self.dbpath = dbpath
+    #     self.cx = sqlite3.connect(dbpath)
+    #     cur = self.cx.cursor()
+    #     cur.executescript(q1)
+    #     cur.execute(q2,(2,card_count))
+    #     self.restack()
+
+    def __init__(self,card_count=30,dbpath='hsk2009.db'):
+        # self._load('hsk2009.db',card_count)
         q1 = """
         drop table if exists deck;
         drop table if exists save;
@@ -161,6 +187,7 @@ class SQL(object):
         create table save (save_id references hsk);
         create table trash (trash_id references hsk);
         """
+        
         q2 = """
         insert into save 
           select hsk_id 
@@ -169,15 +196,13 @@ class SQL(object):
           order by random()
           limit ?;
         """
+        
         self.dbpath = dbpath
         self.cx = sqlite3.connect(dbpath)
         cur = self.cx.cursor()
         cur.executescript(q1)
         cur.execute(q2,(2,card_count))
         self.restack()
-
-    def __init__(self,card_count=30):
-        self._load('hsk2009.db',card_count)
 
     def _topcard(self):
         q0 = "select save_id from deck limit 1;"
