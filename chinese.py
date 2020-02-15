@@ -86,7 +86,8 @@ class chinese_list(object):
         self._load('hsk2009.db',card_count)
 
 class SQL(object):
-    """Operations on a flashcard deck"""
+    
+    """ Operations on a flashcard deck """
     
     @property
     def question(self):
@@ -202,6 +203,7 @@ class SQL(object):
         for row in cur.execute(q):
             print(row)
 
+    @property
     def progress(self):
         """
         provide "learned/count" string
@@ -216,5 +218,5 @@ class SQL(object):
         missed  = next(cur.execute("select count(*) from save;"))[0]
         ## learned = next(cur.execute("select count(*) from trash;"))[0]
         ## assert count == unseen + missed + learned
-        learned = count - (unseen + missed)
+        learned = count - unseen - missed
         return "%s/%s" % (learned, count)

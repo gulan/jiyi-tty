@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import screen
+from screen import TOSS
 
 VERSION = '4.0.0'
 
@@ -12,18 +12,17 @@ ITER_END0 = '0-iter-end'
 ITER_END1 = '1-iter-end'
 EXIT      = 'EXIT'
 
-def loop(database,device):
+def loop(db,device):
     state = ITER
     while state != EXIT:
         
         if state == ITER_END1:
-            database.restack()
-            state =  ITER_END0 if database.gameover else ITER
+            db.restack()
+            state =  ITER_END0 if db.gameover else ITER
             continue
             
         if state == ITER:
-            tossed = database.progress()
-            device.display_question(database.question,tossed)
+            device.display_question(db.question,db.progress)
             state = FLIPA
             continue
         
@@ -33,21 +32,17 @@ def loop(database,device):
             continue
         
         if state == FLIPB:
-            tossed = database.progress()
-            device.display_answer(database.answer,tossed)
+            device.display_answer(db.answer,db.progress)
             state = SCORE
             continue
         
         if state == SCORE:
-            if device.accept_score() == screen.TOSS:
-                database.toss()
-            else:
-                database.keep()
-            state = ITER if database.more else ITER_END1
+            db.toss() if device.accept_score() == TOSS else db.keep()
+            state = ITER if db.more else ITER_END1
             continue
             
         if state == ITER_END0:
-            database.check_endgame()
+            db.check_endgame()
             state = EXIT
             continue
 
