@@ -9,7 +9,7 @@ class SQL(object):
     
     @property
     def question(self):
-        (_,chinese,pinyin,english,live) = self._topcard()
+        (chinese,pinyin,english,live) = self._topcard()
         if live == 1:
             return [chinese]
         if live == 2: # easy
@@ -17,7 +17,7 @@ class SQL(object):
 
     @property
     def answer(self):
-        (_,chinese,pinyin,english,live) = self._topcard()
+        (chinese,pinyin,english,live) = self._topcard()
         if live == 1:
             return [pinyin, english]
         if live == 2:
@@ -30,10 +30,10 @@ class SQL(object):
         q0 = "select save_id,live from deck limit 1;"
         (card_id,live) = next(cur.execute(q0))[0:2]
 
-        q1 = """select hsk_id,chinese,pinyin,english
+        q1 = """select chinese, pinyin, english
                 from hsk 
                 where hsk_id = ?;"""
-        card = (hsk_id,chinese,pinyin,english) = next(cur.execute(q1,(card_id,)))
+        card = (chinese,pinyin,english) = next(cur.execute(q1,(card_id,)))
         return card + (live,)
 
     def toss(self):
