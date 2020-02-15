@@ -9,13 +9,32 @@ class SQL(object):
     
     @property
     def question(self):
-        (_,chinese,pinyin,english) = self._topcard()
-        return [chinese,pinyin]
+        (_,chinese,pinyin,english,live) = self._topcard()
+        if live == 1:
+            return [chinese]
+        if live == 2: # easy
+            return [chinese,pinyin]
 
     @property
     def answer(self):
-        (_,chinese,pinyin,english) = self._topcard()
-        return [english]
+        (_,chinese,pinyin,english,live) = self._topcard()
+        if live == 1:
+            return [pinyin, english]
+        if live == 2:
+            return [english]
+        
+    def _topcard(self):
+        # make single query
+        cur = self.cx.cursor()
+        
+        q0 = "select save_id,live from deck limit 1;"
+        (card_id,live) = next(cur.execute(q0))[0:2]
+
+        q1 = """select hsk_id,chinese,pinyin,english
+                from hsk 
+                where hsk_id = ?;"""
+        card = (hsk_id,chinese,pinyin,english) = next(cur.execute(q1,(card_id,)))
+        return card + (live,)
 
     def toss(self):
         """Remove the card from the game. This operation is also known
@@ -23,9 +42,13 @@ class SQL(object):
         kept in the trash."""
         cur = self.cx.cursor()
         r = cur.execute('select * from deck limit 1;')
-        card = next(r)[0]
-        cur.execute('insert into trash values (?);', (card,))
-        cur.execute('delete from deck where save_id = ?;', (card,))
+        (key,live) = next(r)[0:2]
+        live -= 1
+        if live == 0:
+            cur.execute('insert into trash values (?);', (key,))
+        else:
+            cur.execute('insert into save values (?,?);', (key,live))
+        cur.execute('delete from deck where save_id = ?;', (key,))
         self.cx.commit()
     
     def keep(self):
@@ -33,9 +56,9 @@ class SQL(object):
         cards back into play with the redo()."""
         cur = self.cx.cursor()
         r = cur.execute('select * from deck limit 1;')
-        card = next(r)[0]
-        cur.execute('insert into save values (?);', (card,))
-        cur.execute('delete from deck where save_id = ?;', (card,))
+        (key, live) = next(r)[0:2]
+        cur.execute('insert into save values (?,?);', (key,live))
+        cur.execute('delete from deck where save_id = ?;', (key,))
         self.cx.commit()
         
     def restack(self):
@@ -79,7 +102,7 @@ class SQL(object):
         
         q2 = """
         insert into save 
-          select hsk_id 
+          select hsk_id,2
           from hsk
           where rank_id = ?
           order by random()
@@ -99,17 +122,6 @@ class SQL(object):
         cur.execute(q2,(2,card_count))
         self.cx.commit()
         self.restack()
-
-    def _topcard(self):
-        q0 = "select save_id from deck limit 1;"
-        q1 = """select hsk_id,chinese,pinyin,english
-                from hsk 
-                where hsk_id = ?;"""
-        cur = self.cx.cursor()
-        card_id = next(cur.execute(q0))[0]
-        card = next(cur.execute(q1,(card_id,)))
-        assert card_id == card[0]
-        return card
 
     def _list_saved(self):
         # not for use, just remember how to join with foreign key:

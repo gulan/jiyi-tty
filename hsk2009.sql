@@ -26,8 +26,14 @@ CREATE TABLE hsk (
    primary key (rank_id,hsk_id));
 
 -- work tables that are emptied for each run.
-create table deck  (deck_id references hsk);
-create table save  (save_id references hsk);
+create table deck (
+       deck_id references hsk,
+       live    integer not null);
+
+create table save (
+       save_id references hsk,
+       live    integer not null);
+
 create table trash (trash_id references hsk);
 
 create table log (
