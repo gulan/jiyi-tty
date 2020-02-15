@@ -1,8 +1,11 @@
 Definitions
------------
+----------------------------------------
 These definitions can be skipped on first reading. I find that keeping
 a dictionary of terms guards against introducing synonyms in the
 prose. Having more than one name for any concept is confusing.
+
+[I need to update this vocabulary as the code no longer uses many of
+these terms.]
 
 Game
   Flash card sessions are not usually called games, but what
@@ -11,26 +14,20 @@ Game
 Player
   the user of our game during the course of play.
 
-Dealer
-  The agent that does all card operations on behalf of the
-  player. In a physical game, the player would also act as his own
-  dealer. But separating the actions makes the role that the computer
-  plays clearer.
-
 Card
   A card is a pair of (question, answer). The representation of
-  these fields can remain unspecified until concrete implementations are
-  considered. A card in the dealt deck also needs an
+  these fields can remain unspecified until concrete implementations
+  are considered. A card in the dealt deck also needs an
   orientation. (question, answer, answer-up). Answer-up is a Boolean
-  with the obvious meaning. The question/answer pair uniquely identifies
-  a card. A game has no duplicate cards.
+  with the obvious meaning. The question/answer pair uniquely
+  identifies a card. A game has no duplicate cards.
 
 Card Set
   The set of all cards used for any play of the game. The card
   set is fixed during play, but of course the player can choose any set
   at the start of a game.
 
-Decks
+Deck
   During the course of play, the card set is partitioned into
   four decks: dealt, play, kept and trash. Any of these decks may be
   empty. Cards move among the decks during the course play, but the
@@ -100,7 +97,7 @@ Shuffle (Operation)
   the play deck (which might be empty)
 
 Introduction
-------------
+----------------------------------------
 The goal of a user (henceforth the "player") is to learn a set of
 facts, say a Chinese vocabulary, or maybe the prime factors of the
 first 100 integers. This system presents a flash card game to assist
@@ -123,8 +120,7 @@ There are two parts of the design to consider:
 I start with the first.
 
 State Operations
-----------------
-
+----------------------------------------
 The state is a five-tuple (card-set, dealt, play, kept, trash). The
 card-set, dealt deck and trash are sets of cards as the sequence of
 the cards do not matter.
@@ -151,11 +147,11 @@ My ad hoc specification language is a hybrid of something like Z/TLA+
 and Python. The prime designates the after state of a variable. For
 example, x' = x, means that x was not changed. (y == 0, y' == y + 1,
 y' == 1) is true. Remember that each line is a predicate and the lines
-a joined by conjunction. Python expressions are used only if they have
+are joined by conjunction. Python expressions are used only if they have
 no side-effects. The assignment statement is forbidden.
 
 Init
-----
+----------------------------------------
 
 ::
 
@@ -165,7 +161,7 @@ Init
     trash' == {}
 
 GameOver
---------
+----------------------------------------
 
 ::
 
@@ -175,7 +171,7 @@ GameOver
     trash == card-set
 
 Deal
-----
+----------------------------------------
 
 ::
 
@@ -188,7 +184,7 @@ Deal
     trash' == trash
 
 Flip
-----
+----------------------------------------
 Only the dealt card changes it state from answer-up == true to
 answer-up == false. The identity of the dealt card remains the same. The
 number of dealt card remains 1. The other stacks are not changed.
@@ -202,7 +198,7 @@ number of dealt card remains 1. The other stacks are not changed.
     trash' == trash
 
 Keep
-----
+----------------------------------------
 
 ::
 
@@ -213,7 +209,7 @@ Keep
     trash' == trash 
 
 Toss
-----
+----------------------------------------
 
 ::
 
@@ -224,7 +220,7 @@ Toss
     trash' == trash `union` {(question, answer)}
 
 Shuffle
--------
+----------------------------------------
 
 ::
 
@@ -247,101 +243,3 @@ sequence.
 Also, while this is not difficult in Python, doing the same in SQL is
 more of a challenge.
 
-History
--------
-During any game, we can trace the sequence of successive of games
-states. This history is subject to certain ordering constraints. We
-must always begin a trace/history with 'init'. I may wish to annotate
-each state with the operation that produced it.
-
-::
-
-    -- init --
-    ({('2+2','4'), ('2*3','6')},    # card-set
-     {},                            # dealt-set
-     [('2+2','4'), ('2*3','6')],    # play-list
-     [],                            # kept-list
-     {})                            # trash-set
-    -- deal -- 
-    (_,                             # henceforth ignore unchanging card-set
-     {('2+2','4', True)},           # dealt-set
-     [('2*3','6')],                 # play-list
-     [],                            # kept-list
-     {})                            # trash-set
-    -- flip --
-     ({('2+2','4', False)},         # dealt-set
-     [('2*3','6')],                 # play-list
-     [],                            # kept-list
-     {})                            # trash-set
-    -- keep --
-     ({},                           # dealt-set
-     [('2*3','6')],                 # play-list
-     [('2+2','4')],                 # kept-list
-     {})                            # trash-set
-    -- deal -- 
-     ({('2*3','6', True)},          # dealt-set
-     [],                            # play-list
-     [('2+2','4')],                 # kept-list
-     {})                            # trash-set
-    -- flip --
-    -- toss --
-    -- shuffle --
-    -- deal --
-    -- flip --
-    -- toss --
-    -- deal --
-    -- flip --
-    -- toss --
-     ({},                           # dealt-set
-     [],                            # play-list
-     [],                            # kept-list
-     {('2*3','6'), ('2+2','4')})    # trash-set
-    -- game-over --
-
-A simple program can read any such history and tell us if it is
-complete (lively) and correct (safety).
-
-In this first version, a shuffle occurs only when play deck is
-empty. Later versions may allow the player to request a shuffle.
-
-Interface
----------
-The player press a couple of keys (enter,delete). On the screen, he
-can view one side the dealt card. The physical interface is very
-simple. The main challange to make sure that player can only generate
-correct state histories. I use a CSP specification. A game is a
-concurrent program.
-
-::
-
-    GAME = KEYBOARD || PLAYER || DEALER || SCREEN
-    alphabet(PLAYER) = {view-q decide view-a enter score-yes delete score-no}
-    alphabet(KEYBOARD) = {enter delete}
-    alphabet(SCREEN) = {show-q view-q show-a view-a}
-    alphabet(DEALER) = {show-q show-a score-yes score-no}
-    PLAYER = view-q -> (decide -> A)
-    A = enter -> B || delete -> A
-    B = view-a -> (enter -> (score-no -> PLAYER) | delete -> (score-yes -> PLAYER))
-    KEYBOARD = (enter -> KEYBOARD) | (delete -> KEYBOARD) | (_ -> KEYBOARD)
-    DEALER = show-q -> (show-a -> (score-yes -> DEALER | score-no -> DEALER))
-    SCREEN = (show-q -> (view-q -> SCREEN)) | (show-a -> (view-a -> SCREEN))
-
-The player can view the question, but only if the screen is showing
-it. The same for answer.
-
-The player can 'decide' his answer, but that is a private matter that is
-not shared. Since it just happens in the player's mind, it does not result
-in any system action either.
-
-The player can press a key. Only the enter and delete key events are
-shared with the keyboard. So any key other than enter and delete are
-accepted by the keyboard, but ignore by the player process. Note that
-after 'decide' the delete would deadlock if I did not skip it like I
-do in definition A.
-
-[I want a simple tool to check for deadlocks.]
-
-[I need to add termination.]
-
-Attaching Operations
---------------------

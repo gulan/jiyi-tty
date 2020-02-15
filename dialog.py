@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*- 
 
 from screen import TOSS
-
-VERSION = '4.0.0'
 
 FLIPA     = '0-user-prod-a'
 FLIPB     = '0-user-prod-b'
