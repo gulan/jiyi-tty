@@ -70,9 +70,6 @@ class SQL(object):
         count = next(cur.execute('select count(*) from save;'))[0]
         return count == 0
         
-    def check_endgame(self):
-        assert True, "tbd"
-
     def __init__(self,card_count=30,dbpath='hsk2009.db'):
         q1 = """
         delete from deck;

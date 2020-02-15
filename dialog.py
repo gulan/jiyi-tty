@@ -8,17 +8,16 @@ FLIPA     = '0-user-prod-a'
 FLIPB     = '0-user-prod-b'
 SCORE     = '0-user-score'
 ITER      = '1-iter-again'
-ITER_END0 = '0-iter-end'
-ITER_END1 = '1-iter-end'
+ITER_END  = '1-iter-end'
 EXIT      = 'EXIT'
 
 def loop(db,device):
     state = ITER
     while state != EXIT:
         
-        if state == ITER_END1:
+        if state == ITER_END:
             db.restack()
-            state =  ITER_END0 if db.gameover else ITER
+            state = EXIT if db.gameover else ITER
             continue
             
         if state == ITER:
@@ -38,11 +37,6 @@ def loop(db,device):
         
         if state == SCORE:
             db.toss() if device.accept_score() == TOSS else db.keep()
-            state = ITER if db.more else ITER_END1
-            continue
-            
-        if state == ITER_END0:
-            db.check_endgame()
-            state = EXIT
+            state = ITER if db.more else ITER_END
             continue
 
