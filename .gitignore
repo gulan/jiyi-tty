@@ -9,8 +9,10 @@ dist
 my__*
 MANIFEST
 3/
+backup/
 *.log
 *.old
 spec.html
 spec.pdf
+api.py
 tryit.py
