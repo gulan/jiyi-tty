@@ -12,42 +12,42 @@ ITER_END0 = '0-iter-end'
 ITER_END1 = '1-iter-end'
 EXIT      = 'EXIT'
 
-def loop(gs,sc):
-    tossed = 0
+def loop(database,device):
     state = ITER
     while state != EXIT:
         
         if state == ITER_END1:
-            gs.restack()
-            state =  ITER_END0 if gs.gameover else ITER
+            database.restack()
+            state =  ITER_END0 if database.gameover else ITER
             continue
             
         if state == ITER:
-            sc.display_question(gs.question)
+            tossed = database.progress()
+            device.display_question(database.question,tossed)
             state = FLIPA
             continue
         
         if state == FLIPA:
-            sc.accept_flip()
+            device.accept_flip()
             state = FLIPB
             continue
         
         if state == FLIPB:
-            sc.display_answer(gs.answer,tossed)
+            tossed = database.progress()
+            device.display_answer(database.answer,tossed)
             state = SCORE
             continue
         
         if state == SCORE:
-            if sc.accept_score() == screen.TOSS:
-                gs.toss()
-                tossed += 1
+            if device.accept_score() == screen.TOSS:
+                database.toss()
             else:
-                gs.keep()
-            state = ITER if gs.more else ITER_END1
+                database.keep()
+            state = ITER if database.more else ITER_END1
             continue
             
         if state == ITER_END0:
-            gs.check_endgame()
+            database.check_endgame()
             state = EXIT
             continue
 

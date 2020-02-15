@@ -195,9 +195,26 @@ class SQL(object):
         assert card_id == card[0]
         return card
 
-    def _saved():
+    def _list_saved(self):
+        # not for use, just remember how to join with foreign key:
         q = """select * from saved,hsk where save_id = hsk.rowid;"""
         cur = self.cx.cursor()
         for row in cur.execute(q):
             print(row)
-            
+
+    def progress(self):
+        """
+        provide "learned/count" string
+        """
+        q = """
+            select ccnt from game 
+            where game_id = (select max(game_id) from game);
+            """
+        cur = self.cx.cursor()
+        count   = next(cur.execute(q))[0]
+        unseen  = next(cur.execute("select count(*) from deck;"))[0]
+        missed  = next(cur.execute("select count(*) from save;"))[0]
+        ## learned = next(cur.execute("select count(*) from trash;"))[0]
+        ## assert count == unseen + missed + learned
+        learned = count - (unseen + missed)
+        return "%s/%s" % (learned, count)

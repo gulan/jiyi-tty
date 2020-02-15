@@ -40,13 +40,15 @@ DELETE = curses.KEY_DC
 
 class screen:
 
-    def display_question(self,lines):
+    def display_question(self,lines,toss_count):
         self.stdscr.clear()
         i = 0
         while i < len(lines):
             self.stdscr.addstr(i,0,lines[i])
             i += 1
         self.next_pos = i
+        (ncols,nlines) = os.get_terminal_size()
+        self.stdscr.addstr(nlines-1,ncols-6,str(toss_count))
         self.stdscr.refresh()
         
     def accept_flip(self):
